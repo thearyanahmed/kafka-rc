@@ -10,3 +10,6 @@ actix-web = "4"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 sqlx = { version = "0.5.7", default-features = false, features = ["runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "migrate", "offline"] }
 config = "0.13.0"
+serde = { version = "1", features = ["derive"] }
+serde-aux = "3"
+secrecy = { version = "0.8", features = ["serde"] }
