@@ -1,17 +1,36 @@
 #[derive(serde::Deserialize, Debug)]
 pub struct Config {
-    host: String,
-    hello: Hello,
+    app: AppConfig,
+    db: DatabaseConfig,
 }
 
 #[derive(serde::Deserialize, Debug)]
-pub struct Hello {
+pub struct AppConfig {
+    host: String,
     port: u16
 }
 
+#[derive(serde::Deserialize, Debug)]
+pub struct DatabaseConfig {
+    connection_url: String,
+}
+
 pub fn get_configuration() -> Result<Config,envy::Error> {
-    return match envy::from_env::<Config>() {
-        Ok(config) => Ok(config),
-        Err(e) => Err(e),
+    let app_config : AppConfig;
+
+    match envy::from_env::<AppConfig>() {
+        Ok(config) => app_config = config,
+        Err(e) => return Err(e),
     };
+
+    let db: DatabaseConfig;
+
+    match envy::from_env::<DatabaseConfig>() {
+        Ok(config) => db = config,
+        Err(e) => return Err(e),
+    };
+
+    let config = Config { app: app_config, db };
+
+    Ok(config)
 }
