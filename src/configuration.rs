@@ -1,25 +1,25 @@
 #[derive(serde::Deserialize, Debug)]
 pub struct Config {
-    app: AppConfig,
-    db: DatabaseConfig,
+    pub app: AppConfig,
+    pub db: DatabaseConfig,
 }
 
 #[derive(serde::Deserialize, Debug)]
 pub struct AppConfig {
-    host: String,
-    port: u16
+    pub host: String,
+    pub port: u16
 }
 
 #[derive(serde::Deserialize, Debug)]
 pub struct DatabaseConfig {
-    connection_url: String,
+    pub connection_url: String,
 }
 
 pub fn get_configuration() -> Result<Config,envy::Error> {
-    let app_config : AppConfig;
+    let app : AppConfig;
 
     match envy::from_env::<AppConfig>() {
-        Ok(config) => app_config = config,
+        Ok(config) => app = config,
         Err(e) => return Err(e),
     };
 
@@ -30,7 +30,7 @@ pub fn get_configuration() -> Result<Config,envy::Error> {
         Err(e) => return Err(e),
     };
 
-    let config = Config { app: app_config, db };
+    let config = Config { app, db };
 
     Ok(config)
 }
