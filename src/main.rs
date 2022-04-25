@@ -1,4 +1,4 @@
-use clockwork::configuration::get_configuration;
+use clockwork::config::get_configuration;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
