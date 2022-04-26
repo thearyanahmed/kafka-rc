@@ -1,3 +1,5 @@
+use clockwork::config::get_app_config;
+
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().expect("Failed to read .env file");
@@ -9,4 +11,3 @@ async fn main() -> std::io::Result<()> {
     Ok(())
 }
 
-use clockwork::config::{get_app_config};
