@@ -2,12 +2,14 @@ use std::fmt::Debug;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
-use actix_web::dev::{Server, Service, ServiceFactory};
-use actix_web::{App, HttpResponse, HttpServer, options, Scope, web};
+use actix_web::dev::Server;
+use actix_web::{App, HttpServer, web};
 use crate::config::Config;
 use crate::config::database::DatabaseConfig;
-use serde::Serialize;
 use crate::service_providers::providers;
+
+#[allow(unused_imports)]
+use serde::Serialize;
 
 pub struct Application {
 	server: Server,
@@ -61,8 +63,7 @@ impl ApplicationBuilder {
 
 				let services = providers();
 
-				let mut app = App::new()
-					.route("/health-check",web::get().to(route_a));
+				let mut app = App::new();
 
 				for svc in services {
 					app = app.service(svc);
