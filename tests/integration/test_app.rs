@@ -91,6 +91,7 @@ pub async fn spawn_app() -> TestApplication {
 
 // Configures the database. Creates a connection pool and runs migration.
 pub async fn configure_database(config: &DatabaseConfig) -> PgPool {
+	println!("db config {:?}",config);
 	let mut connection = PgConnection::connect_with(&config.without_db())
 		.await
 		.expect("failed to connect to postgres.");
@@ -98,8 +99,9 @@ pub async fn configure_database(config: &DatabaseConfig) -> PgPool {
 	// create a database
 	connection.execute(
 		format!(
-			r#"CREATE DATABASE "{}";"#,
-			config.db_name
+			r#"CREATE DATABASE "{}" WITH OWNER {};"#,
+			config.db_name,
+			config.db_username
 		).as_str()
 	)
 		.await
