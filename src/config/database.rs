@@ -12,6 +12,7 @@ pub struct DatabaseConfig {
     pub db_host: String,
     pub db_name: String,
     pub db_require_ssl: bool,
+    pub db_connection_timeout: u16, // in seconds
 }
 
 impl DatabaseConfig {
@@ -33,10 +34,4 @@ impl DatabaseConfig {
     pub fn with_db(&self) -> PgConnectOptions {
         self.without_db().database(&self.db_name)
     }
-}
-
-pub fn get_connection_pool(conf: &DatabaseConfig) -> PgPool {
-    PgPoolOptions::new()
-        .connect_timeout(std::time::Duration::from_secs(2))
-        .connect_lazy_with(conf.with_db())
 }
