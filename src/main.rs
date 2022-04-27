@@ -1,12 +1,15 @@
-use clockwork::config::get_app_config;
+use clockwork::bootstrap::Application;
+use clockwork::config::Config;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().expect("Failed to read .env file");
+    dotenv::dotenv().expect("failed to read .env file.");
 
-    let config = get_app_config().expect("could not read .env file.");
+    let config = Config::get().expect("could not build config.");
 
-    println!("config {:?}",config);
+    let app = Application::bootstrap(&config).await?;
+
+    app.run();
 
     Ok(())
 }

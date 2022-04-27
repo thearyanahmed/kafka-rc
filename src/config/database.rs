@@ -1,5 +1,7 @@
 use secrecy::{ExposeSecret, Secret};
-use sqlx::{ConnectOptions, PgPool};
+use sqlx::PgPool;
+#[allow(unused_imports)]
+use sqlx::ConnectOptions;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
 
 #[derive(serde::Deserialize, Debug)]
@@ -29,15 +31,11 @@ impl DatabaseConfig {
     }
 
     pub fn with_db(&self) -> PgConnectOptions {
-        let mut options = self.without_db().database(&self.db_name);
-
-        options.log_statements(tracing::log::LevelFilter::Trace);
-
-        options
+        self.without_db().database(&self.db_name)
     }
 }
 
-pub fn get_connection_pool(conf: &DatabaseSettings) -> PgPool {
+pub fn get_connection_pool(conf: &DatabaseConfig) -> PgPool {
     PgPoolOptions::new()
         .connect_timeout(std::time::Duration::from_secs(2))
         .connect_lazy_with(conf.with_db())
