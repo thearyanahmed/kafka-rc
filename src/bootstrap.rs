@@ -3,14 +3,15 @@ use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 use actix_web::dev::{Server, Service, ServiceFactory};
-use actix_web::{App, HttpResponse, HttpServer, Scope, web};
+use actix_web::{App, HttpResponse, HttpServer, options, Scope, web};
 use crate::config::Config;
 use crate::config::database::DatabaseConfig;
 use serde::Serialize;
+use crate::service_registry::providers;
 
 pub struct Application {
 	server: Server,
-	base_url: ApplicationBaseUrl
+	base_url: ApplicationBaseUrl,
 }
 
 pub struct ApplicationBuilder {}
@@ -28,9 +29,9 @@ impl ApplicationBuilder {
 	pub async fn build(config: &Config) -> Result<Application, std::io::Error> {
 		let address = format!("{}:{}",&config.app.host,&config.app.port);
 
-		let builder = ApplicationBuilder{};
-
 		let listener = TcpListener::bind(&address)?;
+
+		let builder = ApplicationBuilder{};
 
 		let database = builder.get_connection_pool(&config.database);
 
@@ -58,11 +59,7 @@ impl ApplicationBuilder {
 
 		let server = HttpServer::new(move || {
 
-				let mut services = vec![];
-
-				let service_a = a_random_service();
-
-				services.push(service_a);
+				let services = providers();
 
 				let mut app = App::new()
 					.route("/health-check",web::get().to(route_a));
@@ -80,12 +77,21 @@ impl ApplicationBuilder {
 
 		Ok(server)
 	}
+
+	fn not_a_random_service(&self) -> Scope {
+		web::scope("/api/v1").service(
+			web::resource("/projects")
+				.route(web::get().to(route_a))
+				.app_data(web::Data::new("hello world!"))
+		)
+	}
 }
 
 fn a_random_service() -> Scope {
 	web::scope("/api/v1").service(
 		web::resource("/users")
 			.route(web::get().to(route_users))
+			.app_data(web::Data::new("hello world!"))
 	)
 }
 
