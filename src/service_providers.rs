@@ -6,6 +6,5 @@ pub fn providers() -> Vec<Scope> {
 
 	v.push(auth::register());
 
-
 	v
 }

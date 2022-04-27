@@ -1,15 +1,14 @@
 use std::fmt::Debug;
+use std::net::TcpListener;
+
+use actix_web::{App, HttpServer, web};
+use actix_web::dev::Server;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
-use std::net::TcpListener;
-use actix_web::dev::Server;
-use actix_web::{App, HttpServer, web};
+
 use crate::config::Config;
 use crate::config::database::DatabaseConfig;
 use crate::service_providers::providers;
-
-#[allow(unused_imports)]
-use serde::Serialize;
 
 pub struct Application {
 	server: Server,
@@ -25,9 +24,21 @@ impl Application {
 	pub async fn serve(self) -> Result<(), std::io::Error> {
 		self.server.await
 	}
+
+	pub fn with(server: Server, base_url: ApplicationBaseUrl) -> Self {
+		Application {
+			server,
+			base_url,
+		}
+	}
 }
 
 impl ApplicationBuilder {
+
+	pub fn new() -> Self {
+		Self {}
+	}
+
 	pub async fn build(config: &Config) -> Result<Application, std::io::Error> {
 		let address = format!("{}:{}",&config.app.host,&config.app.port);
 
@@ -49,13 +60,13 @@ impl ApplicationBuilder {
 		Ok(app)
 	}
 
-	fn get_connection_pool(&self, conf: &DatabaseConfig) -> PgPool {
+	pub fn get_connection_pool(&self, conf: &DatabaseConfig) -> PgPool {
 		PgPoolOptions::new()
 			.connect_timeout(std::time::Duration::from_secs(conf.db_connection_timeout as u64))
 			.connect_lazy_with(conf.with_db())
 	}
 
-	fn spin_server(&self, listener: TcpListener, connection_pool: PgPool, base_url: ApplicationBaseUrl) -> Result<Server,std::io::Error> {
+	pub fn spin_server(&self, listener: TcpListener, connection_pool: PgPool, base_url: ApplicationBaseUrl) -> Result<Server,std::io::Error> {
 		let db_pool = web::Data::new(connection_pool);
 		let base_url = web::Data::new(base_url);
 
