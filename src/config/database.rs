@@ -1,8 +1,10 @@
 use secrecy::{ExposeSecret, Secret};
+use sqlx::postgres::{PgConnectOptions, PgSslMode};
+
+#[allow(unused_imports)]
 use sqlx::PgPool;
 #[allow(unused_imports)]
 use sqlx::ConnectOptions;
-use sqlx::postgres::{PgConnectOptions, PgPoolOptions, PgSslMode};
 
 #[derive(serde::Deserialize, Debug)]
 pub struct DatabaseConfig {

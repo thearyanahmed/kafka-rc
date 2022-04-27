@@ -1,49 +1,46 @@
+use std::fmt::Debug;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
-use actix_web::dev::Server;
-use actix_web::{App, HttpResponse, HttpServer, web};
+use actix_web::dev::{Server, Service, ServiceFactory};
+use actix_web::{App, HttpResponse, HttpServer, Scope, web};
 use crate::config::Config;
 use crate::config::database::DatabaseConfig;
+use serde::Serialize;
 
 pub struct Application {
 	server: Server,
-	baseurl: ApplicationBaseUrl
+	base_url: ApplicationBaseUrl
 }
 
 pub struct ApplicationBuilder {}
 
+#[derive(Clone, Debug)]
 pub struct ApplicationBaseUrl(pub String);
 
 impl Application {
-	pub async fn run(self) -> Result<(), std::io::Error> {
+	pub async fn serve(self) -> Result<(), std::io::Error> {
 		self.server.await
 	}
 }
 
 impl ApplicationBuilder {
 	pub async fn build(config: &Config) -> Result<Application, std::io::Error> {
-		println!("got config {}",config.app.host);
-
-		let address = format!("{}:{}",&config.application.host,&config.application.port);
+		let address = format!("{}:{}",&config.app.host,&config.app.port);
 
 		let builder = ApplicationBuilder{};
 
-		println!("address: {}",address);
-
 		let listener = TcpListener::bind(&address)?;
-
-		println!("listener port : {}",listener.local_addr().unwrap().port());
 
 		let database = builder.get_connection_pool(&config.database);
 
 		let base_url = ApplicationBaseUrl(address);
 
-		let server = builder.spin_server(listener,database,base_url)?;
+		let server = builder.spin_server(listener,database,base_url.clone())?;
 
 		let app = Application {
 			server,
-			baseurl,
+			base_url,
 		};
 
 		Ok(app)
@@ -60,18 +57,53 @@ impl ApplicationBuilder {
 		let base_url = web::Data::new(base_url);
 
 		let server = HttpServer::new(move || {
-				App::new()
-					.route("/health-check",web::get().to(route_a))
+
+				let mut services = vec![];
+
+				let service_a = a_random_service();
+
+				services.push(service_a);
+
+				let mut app = App::new()
+					.route("/health-check",web::get().to(route_a));
+
+				for svc in services {
+					app = app.service(svc);
+				}
+
+				app
 					.app_data(db_pool.clone())
 					.app_data(base_url.clone())
 			})
-			.listen(listener)
+			.listen(listener)?
 			.run();
 
 		Ok(server)
 	}
 }
 
+fn a_random_service() -> Scope {
+	web::scope("/api/v1").service(
+		web::resource("/users")
+			.route(web::get().to(route_users))
+	)
+}
+
+#[derive(Serialize)]
+struct SomeResponse {
+	message: String,
+}
+
 async fn route_a() -> HttpResponse {
-	HttpResponse::Ok().finish()
+	let res = SomeResponse { message: "ok".to_string() };
+
+	HttpResponse::Ok().insert_header(("Custom","Header")).json(web::Json(res))
+}
+
+async fn route_users(base_url: web::Data<ApplicationBaseUrl>) -> HttpResponse {
+	let res = SomeResponse { message: "from users".to_string() };
+
+	println!("app base url {:?}",&base_url.0);
+
+	HttpResponse::Ok().insert_header(("Custom","Header")).json(web::Json(res))
 }
