@@ -7,7 +7,7 @@ use actix_web::{App, HttpResponse, HttpServer, options, Scope, web};
 use crate::config::Config;
 use crate::config::database::DatabaseConfig;
 use serde::Serialize;
-use crate::service_registry::providers;
+use crate::service_providers::providers;
 
 pub struct Application {
 	server: Server,
@@ -77,39 +77,4 @@ impl ApplicationBuilder {
 
 		Ok(server)
 	}
-
-	fn not_a_random_service(&self) -> Scope {
-		web::scope("/api/v1").service(
-			web::resource("/projects")
-				.route(web::get().to(route_a))
-				.app_data(web::Data::new("hello world!"))
-		)
-	}
-}
-
-fn a_random_service() -> Scope {
-	web::scope("/api/v1").service(
-		web::resource("/users")
-			.route(web::get().to(route_users))
-			.app_data(web::Data::new("hello world!"))
-	)
-}
-
-#[derive(Serialize)]
-struct SomeResponse {
-	message: String,
-}
-
-async fn route_a() -> HttpResponse {
-	let res = SomeResponse { message: "ok".to_string() };
-
-	HttpResponse::Ok().insert_header(("Custom","Header")).json(web::Json(res))
-}
-
-async fn route_users(base_url: web::Data<ApplicationBaseUrl>) -> HttpResponse {
-	let res = SomeResponse { message: "from users".to_string() };
-
-	println!("app base url {:?}",&base_url.0);
-
-	HttpResponse::Ok().insert_header(("Custom","Header")).json(web::Json(res))
 }
