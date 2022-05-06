@@ -3,7 +3,8 @@ use std::net::TcpListener;
 
 use actix_web::{App, HttpServer, web};
 use actix_web::dev::Server;
-
+use sqlx::mysql::MySqlPoolOptions;
+use sqlx::{MySqlPool};
 
 use crate::config::Config;
 use crate::config::database::DatabaseConfig;
@@ -63,11 +64,13 @@ impl ApplicationBuilder {
 		Ok(app)
 	}
 
-	pub fn get_connection_pool(&self, conf: &DatabaseConfig) -> usize {
-		1
+	pub fn get_connection_pool(&self, conf: &DatabaseConfig) -> MySqlPool {
+		MySqlPoolOptions::new()
+			.connect_timeout(std::time::Duration::from_secs(2)) // todo take from .env
+			.connect_lazy_with(conf.with_db())
 	}
 
-	pub fn spin_server(&self, listener: TcpListener, connection_pool: usize, base_url: ApplicationBaseUrl) -> Result<Server,std::io::Error> {
+	pub fn spin_server(&self, listener: TcpListener, connection_pool: MySqlPool, base_url: ApplicationBaseUrl) -> Result<Server,std::io::Error> {
 		let db_pool = web::Data::new(connection_pool);
 		let base_url = web::Data::new(base_url);
 
