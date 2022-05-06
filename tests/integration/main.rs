@@ -17,6 +17,13 @@ pub struct TestApplication {
 	pub port: u16,
 }
 
+impl TestApplication {
+	pub fn url(&self, path: &str) -> String {
+		format!("{}/{}",self.address,path)
+	}
+
+}
+
 pub async fn spawn_app() -> TestApplication {
 	dotenv::from_filename(".env.testing").expect("could not read .env.testing file.");
 
@@ -53,6 +60,9 @@ pub async fn spawn_app() -> TestApplication {
 
 // Configures the database. Creates a connection pool and runs migration.
 pub async fn configure_database(config: &DatabaseConfig) -> MySqlPool {
+
+	println!("created a database called {} ", config.db_name);
+
 	let mut connection = MySqlConnection::connect_with(&config.without_db())
 		.await
 		.expect("failed to connect to database.");

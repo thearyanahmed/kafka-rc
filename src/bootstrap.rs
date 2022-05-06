@@ -83,7 +83,7 @@ pub fn spin_server(listener: TcpListener, connection_pool: MySqlPool, base_url: 
 
 	let server = HttpServer::new(move || {
 
-		let services = providers();
+		let services = xproviders();
 
 		let mut app = App::new();
 
@@ -91,12 +91,28 @@ pub fn spin_server(listener: TcpListener, connection_pool: MySqlPool, base_url: 
 			app = app.service(svc);
 		}
 
+		app.configure();
 		app
 			.app_data(db_pool.clone())
 			.app_data(base_url.clone())
+
+
 	})
 		.listen(listener)?
 		.run();
 
 	Ok(server)
+}
+
+use actix_web::Scope;
+use actix_web::web::ServiceConfig;
+use crate::{auth, health_check};
+
+pub fn xproviders() -> Vec<Scope> {
+	let mut v = vec![];
+
+	v.push(auth::register());
+	v.push(health_check::register());
+
+	v
 }

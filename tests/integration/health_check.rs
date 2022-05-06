@@ -4,19 +4,20 @@ use crate::spawn_app;
 async fn health_check_works() {
 	let app = spawn_app().await;
 
-	println!("add address {}", &app.address);
+	let route = app.url("api/v1/health-check");
 
-	assert_eq!(&app.address,format!("http://localhost:{}",app.port).to_string())
+	println!("route: {}",route);
 
-	//
-	// let client = reqwest::Client::new();
-	//
-	// let response = client
-	// 	.get(format!("{}/api/v1/health_check",&app.address))
-	// 	.send()
-	// 	.await
-	// 	.expect("failed to execute test");
-	//
-	// assert!(response.status().is_success());
+	let client = reqwest::Client::new();
+
+	let response = client
+		.get(route)
+		.send()
+		.await
+		.expect("failed to execute test");
+
+	println!("response {}\n {:?}",response.status(),response);
+
+	assert!(response.status().is_success());
 }
 
