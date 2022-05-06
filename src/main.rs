@@ -9,8 +9,9 @@ async fn main() -> std::io::Result<()> {
 
     let app = ApplicationBuilder::build(&config).await?;
 
+    println!("running on : {:}",app.base_url());
+
     app.serve().await?;
 
     Ok(())
 }
-

@@ -25,6 +25,8 @@ impl DatabaseConfig {
             PgSslMode::Prefer
         };
 
+        println!("pulling database information\n database = {}  \n username = {}",self.db_name.clone(),self.db_username.clone());
+
         PgConnectOptions::new()
             .host(&self.db_host)
             .username(&self.db_username)
@@ -34,6 +36,8 @@ impl DatabaseConfig {
     }
 
     pub fn with_db(&self) -> PgConnectOptions {
-        self.without_db().database(&self.db_name)
+        let options = self.without_db().database(&self.db_name);
+
+        return options
     }
 }

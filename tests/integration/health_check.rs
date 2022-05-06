@@ -1,4 +1,4 @@
-use crate::test_app::spawn_app;
+use crate::spawn_app;
 
 #[tokio::test]
 async fn health_check_works() {

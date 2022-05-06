@@ -31,6 +31,10 @@ impl Application {
 			base_url,
 		}
 	}
+
+	pub fn base_url(&self) -> &str {
+		&self.base_url.0.as_str()
+	}
 }
 
 impl ApplicationBuilder {
@@ -61,6 +65,8 @@ impl ApplicationBuilder {
 	}
 
 	pub fn get_connection_pool(&self, conf: &DatabaseConfig) -> PgPool {
+		println!("get_connection_pool DATABASE NAME {}", conf.db_name);
+
 		PgPoolOptions::new()
 			.connect_timeout(std::time::Duration::from_secs(conf.db_connection_timeout as u64))
 			.connect_lazy_with(conf.with_db())
