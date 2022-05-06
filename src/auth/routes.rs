@@ -6,8 +6,8 @@ struct HelloResponse {
 	message: String,
 }
 
-pub async fn route_a() -> HttpResponse {
-	let res = HelloResponse { message: "internal mod stuff".to_string() };
+pub async fn a_random_route() -> HttpResponse {
+	let res = HelloResponse { message: "this is a random route with a custom header response".to_string() };
 
 	HttpResponse::Ok().insert_header(("Custom","Header")).json(web::Json(res))
 }

@@ -45,10 +45,6 @@ impl Application {
 
 impl ApplicationBuilder {
 
-	pub fn new() -> Self {
-		Self {}
-	}
-
 	pub async fn build(config: &Config) -> Result<Application, std::io::Error> {
 		let address = format!("{}:{}",&config.app.host,&config.app.port);
 

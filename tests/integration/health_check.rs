@@ -1,8 +1,8 @@
-use crate::spawn_app;
+use crate::helpers::app;
 
 #[tokio::test]
 async fn health_check_works() {
-	let app = spawn_app().await;
+	let app = app().await;
 
 	let route = app.url("/v1/status/health-check");
 
