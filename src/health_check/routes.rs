@@ -7,7 +7,12 @@ struct HealthCheckResponse {
 }
 
 pub async fn health_check() -> HttpResponse {
-	let res = HealthCheckResponse { status: "ok".to_string() };
+	let res = HealthCheckResponse { status: "the string has changed".to_string() };
+
+	HttpResponse::Ok().json(web::Json(res))
+}
+pub async fn hello_world() -> HttpResponse {
+	let res = HealthCheckResponse { status: "hello_world".to_string() };
 
 	HttpResponse::Ok().json(web::Json(res))
 }
