@@ -12,7 +12,7 @@ pub async fn health_check() -> HttpResponse {
 	HttpResponse::Ok().json(web::Json(res))
 }
 pub async fn hello_world() -> HttpResponse {
-	let res = HealthCheckResponse { status: "hello_world".to_string() };
+	let res = HealthCheckResponse { status: "hello changed world".to_string() };
 
 	HttpResponse::Ok().json(web::Json(res))
 }
