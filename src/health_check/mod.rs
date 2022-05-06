@@ -1,11 +1,11 @@
-use actix_web::{guard, HttpResponse, Resource, Scope, web};
-use actix_web::dev::WebService;
+use actix_web::{guard, Scope, web};
+
 use crate::health_check::routes::{health_check, hello_world};
 
 mod routes;
 
 pub fn register() -> Scope {
-	web::scope("/api/v1")
+	web::scope("/v1/status")
 		.guard(guard::Header("Content-Type","application/json"))
 		.service(
 			web::resource("/health-check").route(
@@ -21,6 +21,4 @@ pub fn register() -> Scope {
 					.to(hello_world),
 			)
 		)
-
-
 }

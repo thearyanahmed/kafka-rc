@@ -4,7 +4,7 @@ use crate::spawn_app;
 async fn health_check_works() {
 	let app = spawn_app().await;
 
-	let route = app.url("api/v1/health-check");
+	let route = app.url("/v1/status/health-check");
 
 	println!("route: {}",route);
 
@@ -12,11 +12,10 @@ async fn health_check_works() {
 
 	let response = client
 		.get(route)
+		.header("Content-Type","application/json")
 		.send()
 		.await
 		.expect("failed to execute test");
-
-	println!("response {}\n {:?}",response.status(),response);
 
 	assert!(response.status().is_success());
 }
