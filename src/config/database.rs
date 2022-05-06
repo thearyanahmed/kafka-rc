@@ -1,10 +1,8 @@
 use secrecy::{ExposeSecret, Secret};
-use sqlx::postgres::{PgConnectOptions, PgSslMode};
 
 #[allow(unused_imports)]
-use sqlx::PgPool;
-#[allow(unused_imports)]
 use sqlx::ConnectOptions;
+use sqlx::mysql::{MySqlPoolOptions, MySqlSslMode};
 
 #[derive(serde::Deserialize, Debug)]
 pub struct DatabaseConfig {
@@ -18,26 +16,22 @@ pub struct DatabaseConfig {
 }
 
 impl DatabaseConfig {
-    pub fn without_db(&self) -> PgConnectOptions {
+    pub fn without_db(&self) -> MySqlPoolOptions {
         let ssl_mode = if self.db_require_ssl {
-            PgSslMode::Require
+            MySqlSslMode::Required
         } else {
-            PgSslMode::Prefer
+            MySqlSslMode::Preferred
         };
 
-        println!("pulling database information\n database = {}  \n username = {}",self.db_name.clone(),self.db_username.clone());
-
-        PgConnectOptions::new()
-            .host(&self.db_host)
-            .username(&self.db_username)
-            .password(&self.db_password.expose_secret())
-            .port(self.db_port)
+        MySqlPoolOptions::new()
+            .host(&self.host)
+            .username(&self.username)
+            .password(&self.password.expose_secret())
+            .port(self.port)
             .ssl_mode(ssl_mode)
     }
 
-    pub fn with_db(&self) -> PgConnectOptions {
-        let options = self.without_db().database(&self.db_name);
-
-        return options
+    pub fn with_db(&self) -> MySqlPoolOptions {
+        self.without_db().database(&self.db_name)
     }
 }
