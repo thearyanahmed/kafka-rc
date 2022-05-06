@@ -1,3 +1,3 @@
-# Clockwork
+# rust0
 
-A (personal) project-management clock-calendar billable app.
+This is a starter kit that comes with testing and database configured.
