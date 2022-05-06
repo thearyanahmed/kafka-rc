@@ -6,8 +6,6 @@ async fn health_check_works() {
 
 	let route = app.url("/v1/status/health-check");
 
-	println!("route: {}",route);
-
 	let client = reqwest::Client::new();
 
 	let response = client
