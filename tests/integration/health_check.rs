@@ -6,7 +6,7 @@ async fn health_check_works() {
 
 	println!("add address {}", &app.address);
 
-	assert_eq!(&app.address,"http://localhost:8000")
+	assert_eq!(&app.address,format!("http://localhost:{}",app.port).to_string())
 
 	//
 	// let client = reqwest::Client::new();
