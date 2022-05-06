@@ -11,6 +11,7 @@ use crate::config::database::DatabaseConfig;
 use crate::service_providers::providers;
 
 pub struct Application {
+	port: u16,
 	server: Server,
 	base_url: ApplicationBaseUrl,
 }
@@ -25,15 +26,20 @@ impl Application {
 		self.server.await
 	}
 
-	pub fn with(server: Server, base_url: ApplicationBaseUrl) -> Self {
+	pub fn with(server: Server, port: u16, base_url: ApplicationBaseUrl) -> Self {
 		Application {
 			server,
+			port,
 			base_url,
 		}
 	}
 
 	pub fn base_url(&self) -> &str {
 		&self.base_url.0.as_str()
+	}
+
+	pub fn port(&self) -> u16 {
+		self.port
 	}
 }
 
@@ -47,50 +53,50 @@ impl ApplicationBuilder {
 		let address = format!("{}:{}",&config.app.host,&config.app.port);
 
 		let listener = TcpListener::bind(&address)?;
+		let port = listener.local_addr().unwrap().port();
 
-		let builder = ApplicationBuilder{};
-
-		let database = builder.get_connection_pool(&config.database);
+		let database = get_connection_pool(&config.database);
 
 		let base_url = ApplicationBaseUrl(address);
 
-		let server = builder.spin_server(listener,database,base_url.clone())?;
+		let server = spin_server(listener,database,base_url.clone())?;
 
 		let app = Application {
 			server,
+			port,
 			base_url,
 		};
 
 		Ok(app)
 	}
+}
 
-	pub fn get_connection_pool(&self, conf: &DatabaseConfig) -> MySqlPool {
-		MySqlPoolOptions::new()
-			.connect_timeout(std::time::Duration::from_secs(2)) // todo take from .env
-			.connect_lazy_with(conf.with_db())
-	}
+pub fn get_connection_pool(conf: &DatabaseConfig) -> MySqlPool {
+	MySqlPoolOptions::new()
+		.connect_timeout(std::time::Duration::from_secs(2)) // todo take from .env
+		.connect_lazy_with(conf.with_db())
+}
 
-	pub fn spin_server(&self, listener: TcpListener, connection_pool: MySqlPool, base_url: ApplicationBaseUrl) -> Result<Server,std::io::Error> {
-		let db_pool = web::Data::new(connection_pool);
-		let base_url = web::Data::new(base_url);
+pub fn spin_server(listener: TcpListener, connection_pool: MySqlPool, base_url: ApplicationBaseUrl) -> Result<Server,std::io::Error> {
+	let db_pool = web::Data::new(connection_pool);
+	let base_url = web::Data::new(base_url);
 
-		let server = HttpServer::new(move || {
+	let server = HttpServer::new(move || {
 
-				let services = providers();
+		let services = providers();
 
-				let mut app = App::new();
+		let mut app = App::new();
 
-				for svc in services {
-					app = app.service(svc);
-				}
+		for svc in services {
+			app = app.service(svc);
+		}
 
-				app
-					.app_data(db_pool.clone())
-					.app_data(base_url.clone())
-			})
-			.listen(listener)?
-			.run();
+		app
+			.app_data(db_pool.clone())
+			.app_data(base_url.clone())
+	})
+		.listen(listener)?
+		.run();
 
-		Ok(server)
-	}
+	Ok(server)
 }
