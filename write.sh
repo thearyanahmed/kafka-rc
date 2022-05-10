@@ -7,6 +7,7 @@ if [ -z $1 ] ; then
 fi
 
 echo " NOTE: Starting interactive terminal. To exit, press ctrl + c"
+echo " Please wait until you see '>' character in your terminal"
 
 docker exec --interactive --tty broker \
 kafka-console-producer --bootstrap-server broker:9092 \
