@@ -11,7 +11,7 @@ After logging in to the server,
 cd kafka-rc
 ```
 
-Then kindly check [Run from here]("#run-from-here") portion down below. I've ran the docker-compose and necessary commands until "Run from here".
+Then kindly check [Run from here]("Run-from-here") portion down below. I've ran the docker-compose and necessary commands until "Run from here".
 
 ## Bash scripts
 
