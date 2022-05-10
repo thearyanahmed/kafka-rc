@@ -8,6 +8,6 @@ pub struct TestApplication {
 
 impl TestApplication {
 	pub fn url(&self, path: &str) -> String {
-		format!("{}{}",self.address,path)
+		format!("{}{}", self.address, path)
 	}
 }

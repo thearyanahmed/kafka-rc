@@ -3,8 +3,6 @@ use std::net::TcpListener;
 
 use actix_web::{App, HttpServer, web};
 use actix_web::dev::Server;
-use sqlx::mysql::MySqlPoolOptions;
-use sqlx::{MySqlPool};
 
 use crate::config::Config;
 use crate::service_providers::providers;
