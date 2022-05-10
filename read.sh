@@ -8,7 +8,6 @@ fi
 
 echo " NOTE: Starting interactive terminal. To exit, press ctrl + c"
 echo " If you see a blank screen, make sure to write something using ./write.sh topic" 
-echo " Please wait until you see '>' character in your terminal"
 
 docker exec --interactive --tty broker \
 kafka-console-consumer --bootstrap-server broker:9092 \
