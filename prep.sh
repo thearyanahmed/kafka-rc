@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+cp .env.example .env
 set -a; source .env; set +a;
 echo "done \n"
-echo "run docker compose up"
+echo "now run docker compose up"
